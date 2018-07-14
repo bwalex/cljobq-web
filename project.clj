@@ -1,4 +1,4 @@
-(defproject cljobq-web "0.1.3"
+(defproject cljobq-web "0.1.4"
   :description "A web frontend for cljobq"
   :url "https://github.com/bwalex/cljobq-web"
   :license {:name "Eclipse Public License"

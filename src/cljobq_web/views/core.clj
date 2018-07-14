@@ -301,7 +301,7 @@
     :cond-fn :last-error
     :render-fn
     (fn [{:keys [last-error]}]
-      [:pre {} last-error])}])
+      [:pre {} (escape-html last-error)])}])
 
 (def single-failed-job-fields
   [{:label "Job name"
@@ -328,7 +328,7 @@
     :cond-fn :last-error
     :render-fn
     (fn [{:keys [last-error]}]
-      [:pre {} last-error])}])
+      [:pre {} (escape-html last-error)])}])
 
 (defn single-job [{:keys [flash job]}]
   (let [{:keys [id job-name queue]} job]
