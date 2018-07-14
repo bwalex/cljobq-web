@@ -2,9 +2,7 @@
 
 A web frontend for [cljobq].
 
-```clojure
-[cljobq-web "0.1.2"] ; add this to your project.clj
-```
+![](https://clojars.org/cljobq-web/latest-version.svg)
 
 ## Usage
 

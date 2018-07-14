@@ -2,7 +2,7 @@
   (:require
     [hiccup.core :refer [html]]
     [hiccup.form :refer [hidden-field]]
-    [hiccup.util :refer [url]]
+    [hiccup.util :refer [url escape-html]]
     [ring.middleware.anti-forgery :refer [*anti-forgery-token*]]))
 
 (defn head [title]
@@ -102,7 +102,7 @@
    {:label "Actor"
     :render-fn :actor}
    {:label "Args"
-    :render-fn (comp str :args)}
+    :render-fn (comp escape-html str :args)}
    {:label "Retries"
     :render-fn :attempt}
    {:label "Last picked"
@@ -127,7 +127,7 @@
    {:label "Actor"
     :render-fn :actor}
    {:label "Args"
-    :render-fn (comp str :args)}
+    :render-fn (comp escape-html str :args)}
    {:label "Last picked"
     :render-fn :picked-at}
    {:label "Created"
@@ -151,7 +151,7 @@
    {:label "Actor"
     :render-fn :actor}
    {:label "Args"
-    :render-fn (comp str :args)}
+    :render-fn (comp escape-html str :args)}
    {:label "Retries"
     :render-fn :attempt}
    {:label "Last picked"
@@ -283,7 +283,7 @@
    {:label "Actor"
     :render-fn :actor}
    {:label "Args"
-    :render-fn (comp str :args)}
+    :render-fn (comp escape-html str :args)}
    {:label "Interval"
     :cond-fn :interval
     :render-fn :interval}
@@ -317,7 +317,7 @@
    {:label "Actor"
     :render-fn :actor}
    {:label "Args"
-    :render-fn (comp str :args)}
+    :render-fn (comp escape-html str :args)}
    {:label "Retries"
     :render-fn :attempt}
    {:label "Last picked at"
