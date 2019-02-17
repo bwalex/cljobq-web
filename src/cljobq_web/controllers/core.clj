@@ -3,7 +3,7 @@
     [cljobq-web.views.core :as views]
     [cljobq-web.middleware :as middleware]
     [cljobq.job :as cj]
-    [hiccup.util :refer [url]]
+    [hiccup.util :refer [url to-str]]
     [ring.util.response :refer [redirect]]))
 
 (defn jobs-controller [filt request queue]
@@ -16,6 +16,7 @@
                (= filt :scheduled) (filter #(= (:status %) "scheduled")))]
     (views/job-list
       {:filt filt
+       :request request
        :flash (:flash request)
        :queue queue
        :queue-names queue-names
@@ -30,6 +31,7 @@
         jobs (cj/list-failed-jobs db queue)]
     (views/failed-job-list
       {:flash (:flash request)
+       :request request
        :queue queue
        :queue-names queue-names
        :stats stats
@@ -43,6 +45,7 @@
         jobs (cj/list-recurring-jobs db queue)]
     (views/recurring-job-list
       {:flash (:flash request)
+       :request request
        :queue queue
        :queue-names queue-names
        :stats stats
@@ -55,6 +58,7 @@
                 cj/dbjob->friendly-job)]
     (views/single-job
       {:flash (:flash request)
+       :request request
        :job job})))
 
 (defn failed-job-controller [request id]
@@ -67,6 +71,7 @@
                              cj/dbjob->friendly-job)]
     (views/single-failed-job
       {:flash (:flash request)
+       :request request
        :job job
        :related-job related-job})))
 
@@ -77,7 +82,7 @@
                 cj/dbjob->friendly-job)
         {:keys [queue job-name]} job]
     (cj/reenqueue-job! db {:id id})
-    (-> (redirect (str (url "/queued" {:queue queue})))
+    (-> (redirect (to-str (url "/queued" {:queue queue})))
         (assoc :flash
                (str "Job "
                     job-name
@@ -92,7 +97,7 @@
                 cj/dbjob->friendly-job)
         {:keys [queue job-name]} job]
     (cj/retry-failed-job! db {:id id})
-    (-> (redirect (str (url "/queued" {:queue queue})))
+    (-> (redirect (to-str (url "/queued" {:queue queue})))
         (assoc :flash
                (str "Job "
                     job-name
@@ -107,7 +112,7 @@
                 cj/dbjob->friendly-job)
         {:keys [queue job-name]} job]
     (cj/delete-failed-job-by-id! db {:id id})
-    (-> (redirect (str (url "/failed" {:queue queue})))
+    (-> (redirect (to-str (url "/failed" {:queue queue})))
         (assoc :flash
                (str "Failed job "
                     job-name
@@ -119,7 +124,7 @@
   (let [ctx (::middleware/context request)
         db (:db ctx)]
     (if queue
-      (cj/reset-failed-jobs-by-queue! db {:queue_name queue})
+      (cj/reset-failed-jobs-by-queue! db {:queue queue})
       (cj/reset-failed-jobs! db))
-    (-> (redirect (str (url "/failed" {:queue queue})))
+    (-> (redirect (to-str (url "/failed" {:queue queue})))
         (assoc :flash "Failed jobs cleared."))))

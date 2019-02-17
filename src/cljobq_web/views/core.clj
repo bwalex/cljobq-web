@@ -2,8 +2,7 @@
   (:require
     [hiccup.core :refer [html]]
     [hiccup.form :refer [hidden-field]]
-    [hiccup.util :refer [url escape-html]]
-    [ring.middleware.anti-forgery :refer [*anti-forgery-token*]]))
+    [hiccup.util :refer [url escape-html]]))
 
 (defn head [title]
   [:head {}
@@ -87,12 +86,13 @@
    (for [s stats]
      [:span.stats-label {} (:label s)])])
 
-(defn form-link-button [action label]
+(defn form-link-button [{:keys [anti-forgery-token] :as request}
+                        action label]
   [:form {:action action, :method "POST", :style "display: inline;"}
-   (hidden-field "__anti-forgery-token" (force *anti-forgery-token*))
+   (hidden-field "__anti-forgery-token" anti-forgery-token)
    [:button.btn.btn-link {} label]])
 
-(def job-columns
+(defn job-columns [request]
   [{:label "Queue"
     :render-fn :queue}
    {:label "Job name"
@@ -115,9 +115,9 @@
     :render-fn
     (fn [{:keys [id]}]
       [:div {}
-       (form-link-button (url "/job/" id "/run") "Run now")])}])
+       (form-link-button request (url "/job/" id "/run") "Run now")])}])
 
-(def failed-job-columns
+(defn failed-job-columns [request]
   [{:label "Queue"
     :render-fn :queue}
    {:label "Job name"
@@ -136,10 +136,10 @@
     :render-fn
     (fn [{:keys [id]}]
       [:div {}
-       (form-link-button (url "/failed/" id "/retry") "Retry")
-       (form-link-button (url "/failed/" id "/delete") "Delete")])}])
+       (form-link-button request (url "/failed/" id "/retry") "Retry")
+       (form-link-button request (url "/failed/" id "/delete") "Delete")])}])
 
-(def recurring-job-columns
+(defn recurring-job-columns [request]
   [{:label "Queue"
     :render-fn :queue}
    {:label "Job name"
@@ -164,7 +164,7 @@
     :render-fn
     (fn [{:keys [id]}]
       [:div {}
-       (form-link-button (url "/job/" id "/run") "Run now")])}])
+       (form-link-button request (url "/job/" id "/run") "Run now")])}])
 
 (defn job-table [jobs col-defs]
   [:table.table.table-striped.table-hover {}
@@ -198,7 +198,7 @@
 (defn flash-toast [flash]
   [:div.toast {:style "margin-bottom: 12px;"} flash])
 
-(defn job-list [{:keys [filt flash queue queue-names jobs stats]}]
+(defn job-list [{:keys [request filt flash queue queue-names jobs stats]}]
   (html
     [:html {}
      (head (case filt
@@ -228,10 +228,10 @@
                     (when queue {:queue queue}))}]
            (queue-select queue-names queue))]
         (stats-grid stats)
-        (job-table jobs job-columns)
+        (job-table jobs (job-columns request))
         (job-list-scripts)]]]))
 
-(defn failed-job-list [{:keys [filt flash queue queue-names jobs stats]}]
+(defn failed-job-list [{:keys [request filt flash queue queue-names jobs stats]}]
   (html
     [:html {}
      (head "Failed jobs")
@@ -249,10 +249,10 @@
                     (when queue {:queue queue}))}]
            (queue-select queue-names queue))]
         (stats-grid stats)
-        (job-table jobs failed-job-columns)
+        (job-table jobs (failed-job-columns request))
         (job-list-scripts)]]]))
 
-(defn recurring-job-list [{:keys [filt flash queue queue-names jobs stats]}]
+(defn recurring-job-list [{:keys [request filt flash queue queue-names jobs stats]}]
   (html
     [:html {}
      (head "Recurring jobs")
@@ -270,7 +270,7 @@
                     (when queue {:queue queue}))}]
            (queue-select queue-names queue))]
         (stats-grid stats)
-        (job-table jobs recurring-job-columns)
+        (job-table jobs (recurring-job-columns request))
         (job-list-scripts)]]]))
 
 (def single-job-fields
