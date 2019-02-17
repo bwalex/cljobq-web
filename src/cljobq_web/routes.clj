@@ -4,12 +4,13 @@
     [compojure.coercions :refer [as-int]]
     [cljobq-web.views.core :as views]
     [cljobq-web.controllers.core :as c]
+    [hiccup.util :refer [url to-str]]
     [ring.util.response :refer [redirect]]))
 
 (def routes-handler
   (routes
     (GET "/"
-         [] (redirect "/all"))
+         [] (redirect (to-str (url "/all"))))
     (GET "/all"
          [queue :as r] (c/jobs-controller :all r queue))
     (GET "/queued"
